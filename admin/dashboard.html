@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — ANCHORMPCS Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="emblem"><i class="fa-solid fa-anchor"></i></div>
+      <div>
+        <div class="name">ANCHOR<span>MPCS</span></div>
+        <div class="sub">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html" class="nav-link active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+      <a href="members.html"   class="nav-link"><i class="fa-solid fa-users"></i> Members</a>
+      <a href="payments.html"  class="nav-link"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
+      <div class="nav-section">Account</div>
+      <a href="settings.html"  class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a>
+      <a href="#" class="nav-link" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong id="admin-name">Loading…</strong>
+      <span id="admin-role"></span>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <h2><i class="fa-solid fa-gauge" style="color:var(--blue);margin-right:.4rem"></i> Dashboard</h2>
+      <div class="topbar-actions">
+        <span id="today-date" style="font-size:.8rem;color:#6b7280"></span>
+        <a href="../membership.html" class="btn btn-outline btn-sm" target="_blank">
+          <i class="fa-solid fa-file-pen"></i> Member Form
+        </a>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Stats -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-users"></i></div><div class="stat-body"><div class="val" id="s-total">—</div><div class="lbl">Total Applications</div></div></div>
+        <div class="stat-card"><div class="stat-icon amber"><i class="fa-solid fa-clock"></i></div><div class="stat-body"><div class="val" id="s-pending">—</div><div class="lbl">Pending Review</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-check-circle"></i></div><div class="stat-body"><div class="val" id="s-approved">—</div><div class="lbl">Approved Members</div></div></div>
+        <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-times-circle"></i></div><div class="stat-body"><div class="val" id="s-rejected">—</div><div class="lbl">Rejected</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-money-bill-wave"></i></div><div class="stat-body"><div class="val" id="s-payments">—</div><div class="lbl">Total Payments</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-naira-sign"></i></div><div class="stat-body"><div class="val" id="s-amount">—</div><div class="lbl">Confirmed Revenue</div></div></div>
+      </div>
+
+      <!-- Recent Applications -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--blue);margin-right:.4rem"></i> Recent Applications</h3>
+          <a href="members.html" class="btn btn-outline btn-sm">View All</a>
+        </div>
+        <div class="table-wrap">
+          <table id="recent-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="recent-tbody"><tr><td colspan="7" style="text-align:center;padding:2rem;color:#9ca3af">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/common.js"></script>
+<script>
+  requireAuth();
+  loadAdminInfo();
+
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-NG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  async function loadDashboard() {
+    try {
+      const stats = await apiFetch('/api/admin/stats');
+      document.getElementById('s-total').textContent    = stats.total || 0;
+      document.getElementById('s-pending').textContent  = stats.pending || 0;
+      document.getElementById('s-approved').textContent = stats.approved || 0;
+      document.getElementById('s-rejected').textContent = stats.rejected || 0;
+      document.getElementById('s-payments').textContent = stats.total_payments || 0;
+      document.getElementById('s-amount').textContent   = '₦' + Number(stats.total_confirmed_amount || 0).toLocaleString();
+    } catch {}
+
+    try {
+      const data = await apiFetch('/api/admin/members?limit=10');
+      const tbody = document.getElementById('recent-tbody');
+      if (!data.members.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#9ca3af">No applications yet</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.members.map(m => `
+        <tr>
+          <td style="color:#9ca3af">${m.id}</td>
+          <td><strong>${m.full_name}</strong></td>
+          <td>${m.phone}</td>
+          <td>${m.membership_type}</td>
+          <td><span class="badge badge-${m.status.toLowerCase()}">${m.status}</span></td>
+          <td>${new Date(m.created_at).toLocaleDateString('en-NG')}</td>
+          <td><a href="members.html?id=${m.id}" class="btn btn-outline btn-sm">View</a></td>
+        </tr>`).join('');
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>

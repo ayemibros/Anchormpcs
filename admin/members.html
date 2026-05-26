@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Members — ANCHORMPCS Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="emblem"><i class="fa-solid fa-anchor"></i></div>
+      <div>
+        <div class="name">ANCHOR<span>MPCS</span></div>
+        <div class="sub">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html" class="nav-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+      <a href="members.html"   class="nav-link active"><i class="fa-solid fa-users"></i> Members</a>
+      <a href="payments.html"  class="nav-link"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
+      <div class="nav-section">Account</div>
+      <a href="settings.html"  class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a>
+      <a href="#" class="nav-link" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong id="admin-name">Loading…</strong>
+      <span id="admin-role"></span>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <h2><i class="fa-solid fa-users" style="color:var(--blue);margin-right:.4rem"></i> Members</h2>
+      <div class="topbar-actions">
+        <span id="total-label" style="font-size:.8rem;color:#6b7280"></span>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="card">
+        <div class="card-body" style="padding-bottom:.5rem">
+          <div class="filter-bar">
+            <input type="search" id="search-input" placeholder="Search name, phone, email…">
+            <select id="status-filter">
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="search-btn"><i class="fa-solid fa-search"></i> Search</button>
+            <button class="btn btn-outline btn-sm" id="reset-btn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Type</th>
+                <th>Shares</th>
+                <th>Status</th>
+                <th>Member No.</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="members-tbody">
+              <tr><td colspan="10" style="text-align:center;padding:2rem;color:#9ca3af">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-body" style="padding-top:.5rem">
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Member Detail Modal -->
+<div class="modal-overlay" id="member-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Member Details</h3>
+      <button class="modal-close" id="modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body">Loading…</div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- Reject Reason Modal -->
+<div class="modal-overlay" id="reject-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <h3>Reject Application</h3>
+      <button class="modal-close" id="reject-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Reason for rejection</label>
+      <textarea class="form-control" id="reject-reason" rows="4" placeholder="Explain why this application is being rejected…" style="resize:vertical"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="reject-cancel">Cancel</button>
+      <button class="btn btn-danger" id="reject-confirm"><i class="fa-solid fa-times"></i> Reject</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/common.js"></script>
+<script>
+  requireAuth();
+  loadAdminInfo();
+
+  let currentPage = 1;
+  const limit = 20;
+  let rejectTargetId = null;
+
+  // open modal if ?id= in URL
+  const urlId = new URLSearchParams(location.search).get('id');
+  if (urlId) openMember(urlId);
+
+  async function loadMembers(page = 1) {
+    currentPage = page;
+    const search = document.getElementById('search-input').value.trim();
+    const status = document.getElementById('status-filter').value;
+    const params = new URLSearchParams({ page, limit });
+    if (search) params.set('search', search);
+    if (status) params.set('status', status);
+
+    const tbody = document.getElementById('members-tbody');
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:2rem;color:#9ca3af"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</td></tr>';
+
+    try {
+      const data = await apiFetch(`/api/admin/members?${params}`);
+      document.getElementById('total-label').textContent = `${data.total} application${data.total !== 1 ? 's' : ''}`;
+
+      if (!data.members.length) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:2rem;color:#9ca3af">No records found</td></tr>';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+
+      tbody.innerHTML = data.members.map(m => `
+        <tr>
+          <td style="color:#9ca3af">${m.id}</td>
+          <td><strong>${m.full_name}</strong></td>
+          <td>${m.phone}</td>
+          <td>${m.email || '—'}</td>
+          <td>${m.membership_type}</td>
+          <td>${m.num_shares} (₦${Number(m.share_amount).toLocaleString()})</td>
+          <td><span class="badge badge-${m.status.toLowerCase()}">${m.status}</span></td>
+          <td>${m.member_number || '—'}</td>
+          <td>${new Date(m.created_at).toLocaleDateString('en-NG')}</td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="openMember(${m.id})">
+              <i class="fa-solid fa-eye"></i> View
+            </button>
+          </td>
+        </tr>`).join('');
+
+      renderPagination(data.total, page, limit);
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:2rem;color:var(--red)">${e.message}</td></tr>`;
+    }
+  }
+
+  function renderPagination(total, page, limit) {
+    const totalPages = Math.ceil(total / limit);
+    const pag = document.getElementById('pagination');
+    if (totalPages <= 1) { pag.innerHTML = ''; return; }
+    let html = `<button class="page-btn" ${page <= 1 ? 'disabled' : ''} onclick="loadMembers(${page - 1})">&laquo;</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - page) <= 2) {
+        html += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="loadMembers(${i})">${i}</button>`;
+      } else if (Math.abs(i - page) === 3) {
+        html += `<span style="padding:.3rem .4rem;color:#9ca3af">…</span>`;
+      }
+    }
+    html += `<button class="page-btn" ${page >= totalPages ? 'disabled' : ''} onclick="loadMembers(${page + 1})">&raquo;</button>`;
+    pag.innerHTML = html;
+  }
+
+  async function openMember(id) {
+    document.getElementById('member-modal').classList.add('open');
+    document.getElementById('modal-body').innerHTML = '<div style="text-align:center;padding:2rem"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>';
+    document.getElementById('modal-footer').innerHTML = '';
+
+    try {
+      const m = await apiFetch(`/api/admin/members/${id}`);
+      document.getElementById('modal-title').textContent = m.full_name;
+
+      const photo = m.passport_photo
+        ? `<img src="${m.passport_photo}" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:3px solid var(--blue);float:right;margin-left:1rem">`
+        : '';
+
+      document.getElementById('modal-body').innerHTML = `
+        ${photo}
+        <p style="margin-bottom:1rem">
+          <span class="badge badge-${m.status.toLowerCase()}">${m.status}</span>
+          ${m.member_number ? `<span class="badge badge-blue" style="margin-left:.4rem">${m.member_number}</span>` : ''}
+        </p>
+
+        <p style="font-weight:700;font-size:.8rem;text-transform:uppercase;color:#6b7280;margin-bottom:.5rem">Personal Information</p>
+        <div class="detail-grid" style="margin-bottom:1rem">
+          ${field('Full Name', m.full_name)}
+          ${field('Phone', m.phone)}
+          ${field('Email', m.email)}
+          ${field('Date of Birth', m.date_of_birth ? new Date(m.date_of_birth).toLocaleDateString('en-NG') : null)}
+          ${field('Gender', m.gender)}
+          ${field('Marital Status', m.marital_status)}
+          ${field('Nationality', m.nationality)}
+          ${field('State of Origin', m.state_of_origin)}
+          ${field('ID Number', m.id_number)}
+          ${field('RC Number', m.rc_number)}
+          ${field('Occupation', m.occupation)}
+          ${field('Residential Address', m.residential_address)}
+        </div>
+
+        <p style="font-weight:700;font-size:.8rem;text-transform:uppercase;color:#6b7280;margin-bottom:.5rem">Employment</p>
+        <div class="detail-grid" style="margin-bottom:1rem">
+          ${field('Employer', m.employer_name)}
+          ${field('Work Address', m.work_address)}
+          ${field('Income Range', m.income_range)}
+        </div>
+
+        <p style="font-weight:700;font-size:.8rem;text-transform:uppercase;color:#6b7280;margin-bottom:.5rem">Membership Details</p>
+        <div class="detail-grid" style="margin-bottom:1rem">
+          ${field('Membership Type', m.membership_type)}
+          ${field('Shares', m.num_shares)}
+          ${field('Share Amount', m.share_amount ? '₦' + Number(m.share_amount).toLocaleString() : null)}
+          ${field('Savings Plan', m.savings_plan)}
+          ${field('Purpose', m.purpose)}
+        </div>
+
+        <p style="font-weight:700;font-size:.8rem;text-transform:uppercase;color:#6b7280;margin-bottom:.5rem">Next of Kin</p>
+        <div class="detail-grid" style="margin-bottom:1rem">
+          ${field('Name', m.kin_name)}
+          ${field('Relationship', m.kin_relationship)}
+          ${field('Phone', m.kin_phone)}
+          ${field('Address', m.kin_address)}
+        </div>
+
+        ${m.rejection_reason ? `<div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i> Rejection reason: ${m.rejection_reason}</div>` : ''}
+        <p style="font-size:.75rem;color:#9ca3af">Submitted: ${new Date(m.created_at).toLocaleString('en-NG')}</p>
+      `;
+
+      // Footer action buttons
+      let footer = `<button class="btn btn-outline" onclick="closeMemberModal()">Close</button>`;
+      if (m.status !== 'Approved') {
+        footer += `<button class="btn btn-success" onclick="approveMember(${m.id})"><i class="fa-solid fa-check"></i> Approve</button>`;
+      }
+      if (m.status !== 'Rejected') {
+        footer += `<button class="btn btn-danger" onclick="promptReject(${m.id})"><i class="fa-solid fa-times"></i> Reject</button>`;
+      }
+      if (m.status !== 'Pending') {
+        footer += `<button class="btn btn-outline" onclick="setPending(${m.id})"><i class="fa-solid fa-rotate-left"></i> Reset to Pending</button>`;
+      }
+      document.getElementById('modal-footer').innerHTML = footer;
+    } catch(e) {
+      document.getElementById('modal-body').innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+    }
+  }
+
+  function field(label, value) {
+    return `<div class="detail-item"><label>${label}</label><span>${value || '<em style="color:#9ca3af">—</em>'}</span></div>`;
+  }
+
+  function closeMemberModal() {
+    document.getElementById('member-modal').classList.remove('open');
+  }
+
+  async function approveMember(id) {
+    try {
+      const data = await apiFetch(`/api/admin/members/${id}/approve`, { method: 'PATCH' });
+      toast(`Approved — Member No. ${data.member_number}`, 'success');
+      closeMemberModal();
+      loadMembers(currentPage);
+    } catch(e) { toast(e.message, 'error'); }
+  }
+
+  function promptReject(id) {
+    rejectTargetId = id;
+    document.getElementById('reject-reason').value = '';
+    document.getElementById('reject-modal').classList.add('open');
+  }
+
+  async function setPending(id) {
+    try {
+      await apiFetch(`/api/admin/members/${id}/pending`, { method: 'PATCH' });
+      toast('Reset to Pending', 'success');
+      closeMemberModal();
+      loadMembers(currentPage);
+    } catch(e) { toast(e.message, 'error'); }
+  }
+
+  document.getElementById('reject-confirm').addEventListener('click', async () => {
+    const reason = document.getElementById('reject-reason').value.trim();
+    if (!reason) { toast('Please enter a rejection reason', 'error'); return; }
+    try {
+      await apiFetch(`/api/admin/members/${rejectTargetId}/reject`, {
+        method: 'PATCH',
+        body: JSON.stringify({ reason }),
+      });
+      toast('Application rejected', 'success');
+      document.getElementById('reject-modal').classList.remove('open');
+      closeMemberModal();
+      loadMembers(currentPage);
+    } catch(e) { toast(e.message, 'error'); }
+  });
+
+  document.getElementById('reject-cancel').addEventListener('click', () => {
+    document.getElementById('reject-modal').classList.remove('open');
+  });
+  document.getElementById('reject-close').addEventListener('click', () => {
+    document.getElementById('reject-modal').classList.remove('open');
+  });
+  document.getElementById('modal-close').addEventListener('click', closeMemberModal);
+  document.getElementById('member-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('member-modal')) closeMemberModal();
+  });
+
+  document.getElementById('search-btn').addEventListener('click', () => loadMembers(1));
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    document.getElementById('search-input').value = '';
+    document.getElementById('status-filter').value = '';
+    loadMembers(1);
+  });
+  document.getElementById('search-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loadMembers(1);
+  });
+
+  loadMembers(1);
+</script>
+</body>
+</html>

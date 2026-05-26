@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — ANCHORMPCS</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="emblem"><i class="fa-solid fa-anchor"></i></div>
+      <h1>ANCHOR<span>MPCS</span></h1>
+      <p>Admin Portal</p>
+    </div>
+
+    <div id="alert-box"></div>
+
+    <form id="login-form">
+      <div style="margin-bottom:1rem">
+        <label class="form-label" for="username">Username</label>
+        <input class="form-control" type="text" id="username" placeholder="Enter username" autocomplete="username" required>
+      </div>
+      <div style="margin-bottom:1.5rem">
+        <label class="form-label" for="password">Password</label>
+        <div style="position:relative">
+          <input class="form-control" type="password" id="password" placeholder="Enter password" autocomplete="current-password" required style="padding-right:2.5rem">
+          <button type="button" id="toggle-pw" style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6b7280">
+            <i class="fa-regular fa-eye" id="pw-icon"></i>
+          </button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" type="submit" id="login-btn">
+        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+      </button>
+    </form>
+
+    <p style="text-align:center;margin-top:1.25rem;font-size:.8rem;color:#9ca3af">
+      <a href="../index.html" style="color:var(--blue);text-decoration:none">&larr; Back to main site</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  const API = '/api';
+
+  document.getElementById('toggle-pw').addEventListener('click', () => {
+    const pw = document.getElementById('password');
+    const icon = document.getElementById('pw-icon');
+    if (pw.type === 'password') {
+      pw.type = 'text';
+      icon.className = 'fa-regular fa-eye-slash';
+    } else {
+      pw.type = 'password';
+      icon.className = 'fa-regular fa-eye';
+    }
+  });
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('login-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in…';
+
+    const alertBox = document.getElementById('alert-box');
+    alertBox.innerHTML = '';
+
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('username').value.trim(),
+          password: document.getElementById('password').value,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+
+      localStorage.setItem('anchor_token', data.token);
+      localStorage.setItem('anchor_admin', JSON.stringify(data.admin));
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      alertBox.innerHTML = `<div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i> ${err.message}</div>`;
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In';
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — ANCHORMPCS Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="emblem"><i class="fa-solid fa-anchor"></i></div>
+      <div>
+        <div class="name">ANCHOR<span>MPCS</span></div>
+        <div class="sub">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html" class="nav-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+      <a href="members.html"   class="nav-link"><i class="fa-solid fa-users"></i> Members</a>
+      <a href="payments.html"  class="nav-link"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
+      <div class="nav-section">Account</div>
+      <a href="settings.html"  class="nav-link active"><i class="fa-solid fa-gear"></i> Settings</a>
+      <a href="#" class="nav-link" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong id="admin-name">Loading…</strong>
+      <span id="admin-role"></span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <h2><i class="fa-solid fa-gear" style="color:var(--blue);margin-right:.4rem"></i> Settings</h2>
+    </header>
+
+    <div class="content">
+      <div class="card" style="max-width:480px">
+        <div class="card-header"><h3>Change Password</h3></div>
+        <div class="card-body">
+          <div id="pw-alert"></div>
+          <div style="margin-bottom:1rem">
+            <label class="form-label">Current Password</label>
+            <input class="form-control" type="password" id="current-pw" autocomplete="current-password">
+          </div>
+          <div style="margin-bottom:1rem">
+            <label class="form-label">New Password</label>
+            <input class="form-control" type="password" id="new-pw" autocomplete="new-password">
+          </div>
+          <div style="margin-bottom:1.25rem">
+            <label class="form-label">Confirm New Password</label>
+            <input class="form-control" type="password" id="confirm-pw" autocomplete="new-password">
+          </div>
+          <button class="btn btn-primary" id="pw-btn">
+            <i class="fa-solid fa-key"></i> Update Password
+          </button>
+        </div>
+      </div>
+
+      <div class="card" style="max-width:480px">
+        <div class="card-header"><h3>Account Info</h3></div>
+        <div class="card-body">
+          <div class="detail-grid">
+            <div class="detail-item"><label>Username</label><span id="info-username">—</span></div>
+            <div class="detail-item"><label>Full Name</label><span id="info-fullname">—</span></div>
+            <div class="detail-item"><label>Role</label><span id="info-role">—</span></div>
+            <div class="detail-item"><label>Member Since</label><span id="info-since">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/common.js"></script>
+<script>
+  requireAuth();
+  loadAdminInfo();
+
+  async function loadProfile() {
+    try {
+      const me = await apiFetch('/api/auth/me');
+      document.getElementById('info-username').textContent = me.username;
+      document.getElementById('info-fullname').textContent = me.full_name || '—';
+      document.getElementById('info-role').textContent = me.role;
+      document.getElementById('info-since').textContent = new Date(me.created_at).toLocaleDateString('en-NG');
+    } catch {}
+  }
+  loadProfile();
+
+  document.getElementById('pw-btn').addEventListener('click', async () => {
+    const current  = document.getElementById('current-pw').value;
+    const newPw    = document.getElementById('new-pw').value;
+    const confirm  = document.getElementById('confirm-pw').value;
+    const alertBox = document.getElementById('pw-alert');
+
+    if (!current || !newPw || !confirm) {
+      alertBox.innerHTML = '<div class="alert alert-danger">All fields are required</div>'; return;
+    }
+    if (newPw !== confirm) {
+      alertBox.innerHTML = '<div class="alert alert-danger">New passwords do not match</div>'; return;
+    }
+    if (newPw.length < 8) {
+      alertBox.innerHTML = '<div class="alert alert-danger">Password must be at least 8 characters</div>'; return;
+    }
+
+    try {
+      await apiFetch('/api/auth/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ current_password: current, new_password: newPw }),
+      });
+      alertBox.innerHTML = '<div class="alert alert-success"><i class="fa-solid fa-check"></i> Password updated successfully</div>';
+      document.getElementById('current-pw').value = '';
+      document.getElementById('new-pw').value = '';
+      document.getElementById('confirm-pw').value = '';
+    } catch(e) {
+      alertBox.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payments — ANCHORMPCS Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="emblem"><i class="fa-solid fa-anchor"></i></div>
+      <div>
+        <div class="name">ANCHOR<span>MPCS</span></div>
+        <div class="sub">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html" class="nav-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+      <a href="members.html"   class="nav-link"><i class="fa-solid fa-users"></i> Members</a>
+      <a href="payments.html"  class="nav-link active"><i class="fa-solid fa-money-bill-wave"></i> Payments</a>
+      <div class="nav-section">Account</div>
+      <a href="settings.html"  class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a>
+      <a href="#" class="nav-link" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </nav>
+    <div class="sidebar-footer">
+      <strong id="admin-name">Loading…</strong>
+      <span id="admin-role"></span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <h2><i class="fa-solid fa-money-bill-wave" style="color:var(--blue);margin-right:.4rem"></i> Payments</h2>
+      <div class="topbar-actions">
+        <button class="btn btn-primary btn-sm" id="add-payment-btn">
+          <i class="fa-solid fa-plus"></i> Record Payment
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="card">
+        <div class="card-body" style="padding-bottom:.5rem">
+          <div class="filter-bar">
+            <select id="status-filter">
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="filter-btn"><i class="fa-solid fa-filter"></i> Filter</button>
+            <button class="btn btn-outline btn-sm" id="reset-btn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Member</th>
+                <th>Member No.</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Reference</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="payments-tbody">
+              <tr><td colspan="9" style="text-align:center;padding:2rem;color:#9ca3af">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-body" style="padding-top:.5rem">
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Payment Modal -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <h3>Record Payment</h3>
+      <button class="modal-close" id="add-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:1rem">
+        <label class="form-label">Member ID</label>
+        <input class="form-control" type="number" id="pay-member-id" placeholder="Enter member ID">
+      </div>
+      <div style="margin-bottom:1rem">
+        <label class="form-label">Payment Type</label>
+        <select class="form-control" id="pay-type">
+          <option value="Membership Fee">Membership Fee</option>
+          <option value="Share Capital">Share Capital</option>
+          <option value="Savings">Savings</option>
+        </select>
+      </div>
+      <div style="margin-bottom:1rem">
+        <label class="form-label">Amount (₦)</label>
+        <input class="form-control" type="number" id="pay-amount" placeholder="0.00">
+      </div>
+      <div style="margin-bottom:1rem">
+        <label class="form-label">Reference</label>
+        <input class="form-control" type="text" id="pay-reference" placeholder="Bank reference / transaction ID">
+      </div>
+      <div style="margin-bottom:.5rem">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" id="pay-notes" rows="2" placeholder="Optional notes"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="add-cancel">Cancel</button>
+      <button class="btn btn-primary" id="add-confirm"><i class="fa-solid fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/common.js"></script>
+<script>
+  requireAuth();
+  loadAdminInfo();
+
+  let currentPage = 1;
+  const limit = 20;
+
+  async function loadPayments(page = 1) {
+    currentPage = page;
+    const status = document.getElementById('status-filter').value;
+    const params = new URLSearchParams({ page, limit });
+    if (status) params.set('status', status);
+
+    const tbody = document.getElementById('payments-tbody');
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:#9ca3af"><i class="fa-solid fa-spinner fa-spin"></i></td></tr>';
+
+    try {
+      const data = await apiFetch(`/api/admin/payments?${params}`);
+      if (!data.payments.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:#9ca3af">No payments found</td></tr>';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+
+      tbody.innerHTML = data.payments.map(p => `
+        <tr>
+          <td style="color:#9ca3af">${p.id}</td>
+          <td><strong>${p.full_name}</strong></td>
+          <td>${p.member_number || '—'}</td>
+          <td>${p.payment_type}</td>
+          <td>₦${Number(p.amount).toLocaleString()}</td>
+          <td>${p.reference || '—'}</td>
+          <td><span class="badge badge-${p.status.toLowerCase()}">${p.status}</span></td>
+          <td>${new Date(p.created_at).toLocaleDateString('en-NG')}</td>
+          <td style="display:flex;gap:.4rem;flex-wrap:wrap">
+            ${p.status === 'Pending' ? `
+              <button class="btn btn-success btn-sm" onclick="confirmPayment(${p.id})"><i class="fa-solid fa-check"></i></button>
+              <button class="btn btn-danger btn-sm"  onclick="rejectPayment(${p.id})"><i class="fa-solid fa-times"></i></button>
+            ` : ''}
+          </td>
+        </tr>`).join('');
+
+      renderPagination(data.total, page, limit);
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--red)">${e.message}</td></tr>`;
+    }
+  }
+
+  function renderPagination(total, page, limit) {
+    const totalPages = Math.ceil(total / limit);
+    const pag = document.getElementById('pagination');
+    if (totalPages <= 1) { pag.innerHTML = ''; return; }
+    let html = `<button class="page-btn" ${page <= 1 ? 'disabled' : ''} onclick="loadPayments(${page - 1})">&laquo;</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - page) <= 2)
+        html += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="loadPayments(${i})">${i}</button>`;
+    }
+    html += `<button class="page-btn" ${page >= totalPages ? 'disabled' : ''} onclick="loadPayments(${page + 1})">&raquo;</button>`;
+    pag.innerHTML = html;
+  }
+
+  async function confirmPayment(id) {
+    try {
+      await apiFetch(`/api/admin/payments/${id}/confirm`, { method: 'PATCH' });
+      toast('Payment confirmed', 'success');
+      loadPayments(currentPage);
+    } catch(e) { toast(e.message, 'error'); }
+  }
+
+  async function rejectPayment(id) {
+    try {
+      await apiFetch(`/api/admin/payments/${id}/reject`, { method: 'PATCH' });
+      toast('Payment rejected', 'success');
+      loadPayments(currentPage);
+    } catch(e) { toast(e.message, 'error'); }
+  }
+
+  document.getElementById('filter-btn').addEventListener('click', () => loadPayments(1));
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    document.getElementById('status-filter').value = '';
+    loadPayments(1);
+  });
+
+  // Add Payment
+  document.getElementById('add-payment-btn').addEventListener('click', () => {
+    document.getElementById('add-modal').classList.add('open');
+  });
+  document.getElementById('add-close').addEventListener('click', () => {
+    document.getElementById('add-modal').classList.remove('open');
+  });
+  document.getElementById('add-cancel').addEventListener('click', () => {
+    document.getElementById('add-modal').classList.remove('open');
+  });
+
+  document.getElementById('add-confirm').addEventListener('click', async () => {
+    const member_id  = document.getElementById('pay-member-id').value;
+    const payment_type = document.getElementById('pay-type').value;
+    const amount     = document.getElementById('pay-amount').value;
+    const reference  = document.getElementById('pay-reference').value.trim();
+    const notes      = document.getElementById('pay-notes').value.trim();
+
+    if (!member_id || !amount) { toast('Member ID and amount are required', 'error'); return; }
+
+    try {
+      await apiFetch('/api/admin/payments', {
+        method: 'POST',
+        body: JSON.stringify({ member_id, payment_type, amount, reference, notes }),
+      });
+      toast('Payment recorded', 'success');
+      document.getElementById('add-modal').classList.remove('open');
+      loadPayments(currentPage);
+    } catch(e) { toast(e.message, 'error'); }
+  });
+
+  loadPayments(1);
+</script>
+</body>
+</html>

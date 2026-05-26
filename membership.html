@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Join Anchor Multipurpose Cooperative Society — Complete your membership registration online.">
+  <title>Membership Application | ANCHORMPCS</title>
+  <link rel="shortcut icon" href="assets/images/fav.svg">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="assets/css/anchor.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar d-none d-md-block">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+      <i class="fa fa-location-dot me-2"></i>
+      Ubini Industrial Building, KM1 Refinery Road, Effurun, Delta State
+    </div>
+    <div class="d-flex align-items-center">
+      <i class="fa fa-phone me-2"></i>
+      <a href="tel:08033114863">08033114863</a>
+      <span class="tb-divider"></span>
+      <a href="tel:09029876878">09029876878</a>
+      <span class="tb-divider tb-hide"></span>
+      <span class="tb-hide"><i class="fa fa-university me-2"></i>First Bank: <strong style="color:#fff">2048556639</strong></span>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+
+    <a class="navbar-brand" href="index.html">
+      <div class="logo-emblem">
+        <i class="fa-solid fa-anchor"></i>
+      </div>
+      <div class="logo-text ms-1">
+        <div class="logo-name">
+          <span class="logo-anchor">ANCHOR</span><span class="logo-mpcs">MPCS</span>
+        </div>
+        <div class="logo-tagline">Multipurpose Cooperative Society</div>
+      </div>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center mt-3 mt-lg-0">
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#about">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#businesses">Services</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#benefits">Benefits</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#contact">Contact</a></li>
+        <li class="d-none d-lg-block nav-sep"></li>
+        <li class="nav-item ms-lg-1">
+          <a class="nav-link btn-join active" href="membership.html">
+            <i class="fa fa-user-plus"></i> Join Now
+          </a>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="form-hero">
+  <div class="container">
+    <div class="row align-items-center gy-4">
+      <div class="col-lg-7">
+        <nav aria-label="breadcrumb" class="mb-3">
+          <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="index.html" style="color:#6fa3ff">Home</a></li>
+            <li class="breadcrumb-item active" style="color:var(--muted)">Membership Application</li>
+          </ol>
+        </nav>
+        <h1>Membership Application Form</h1>
+        <p>Fill in your details to apply for membership. All information is confidential and reviewed by the Management Committee.</p>
+      </div>
+      <div class="col-lg-5 text-lg-end">
+        <div class="fee-badge">
+          <div class="fl">Membership Fee</div>
+          <div class="fv">₦15,000</div>
+          <div class="fb">Pay to First Bank &bull; <strong>2048556639</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORM BODY -->
+<div class="form-page-bg">
+  <div class="container">
+    <form id="membershipForm" action="#" method="POST" enctype="multipart/form-data">
+
+      <!-- A: PERSONAL INFORMATION -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <div class="badge-letter">A</div>
+          Applicant's Personal Information
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="full_name" placeholder="As on identification document" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" name="dob" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Gender <span class="text-danger">*</span></label>
+            <select class="form-select" name="gender" required>
+              <option value="">Select</option>
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Marital Status <span class="text-danger">*</span></label>
+            <select class="form-select" name="marital_status" required>
+              <option value="">Select</option>
+              <option>Single</option>
+              <option>Married</option>
+              <option>Divorced</option>
+              <option>Widowed</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Occupation <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="occupation" placeholder="e.g. Teacher, Trader, Engineer" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Nationality <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="nationality" placeholder="e.g. Nigerian" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">ID Type &amp; Number <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="id_number" placeholder="e.g. National ID: A12345678" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+            <input type="tel" class="form-control" name="phone" placeholder="080XXXXXXXX" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">RC Number</label>
+            <input type="text" class="form-control" name="rc_number" placeholder="If applicable">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-control" name="email" placeholder="yourname@example.com">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">State of Origin <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="state_of_origin" placeholder="e.g. Delta State" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Residential Address <span class="text-danger">*</span></label>
+            <textarea class="form-control" name="residential_address" rows="2" placeholder="Full address including street, town, and state" required></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Passport Photograph</label>
+            <input type="file" class="form-control" name="passport_photo" accept="image/*">
+            <div class="form-text">Upload a clear passport-sized photo (bring 2 printed copies to the office)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- B: EMPLOYMENT / BUSINESS -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <div class="badge-letter">B</div>
+          Employment / Business Details
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Employer / Business Name</label>
+            <input type="text" class="form-control" name="employer_name" placeholder="Name of employer or your business">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Work Address</label>
+            <input type="text" class="form-control" name="work_address" placeholder="Office or business address">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Monthly Income Range <span class="text-danger">*</span></label>
+            <select class="form-select" name="income_range" required>
+              <option value="">Select range</option>
+              <option>Below ₦50,000</option>
+              <option>₦50,000 – ₦100,000</option>
+              <option>₦100,001 – ₦200,000</option>
+              <option>₦200,001 – ₦500,000</option>
+              <option>Above ₦500,000</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- C: MEMBERSHIP DETAILS -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <div class="badge-letter">C</div>
+          Membership Details
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Type of Membership <span class="text-danger">*</span></label>
+            <div class="d-flex gap-4 mt-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="membership_type" id="fullMember" value="Full Member" required>
+                <label class="form-check-label" for="fullMember">Full Member</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="membership_type" id="assocMember" value="Associate Member">
+                <label class="form-check-label" for="assocMember">Associate Member</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Number of Shares <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" name="num_shares" id="numShares" min="1" placeholder="e.g. 2" required oninput="calcShare()">
+            <div class="form-text">1 Share = ₦25,000</div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Amount Payable</label>
+            <input type="text" class="form-control" name="share_amount" id="shareAmount" placeholder="₦0" readonly style="font-weight:700; color:#6fa3ff;">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Purpose of Joining ANCHORMPCS <span class="text-danger">*</span></label>
+            <textarea class="form-control" name="purpose" rows="3" placeholder="Briefly describe why you are joining and what you hope to achieve…" required></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- D: NEXT OF KIN -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <div class="badge-letter">D</div>
+          Next of Kin / Nominee
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="kin_name" placeholder="Next of kin's full name" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Relationship <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="kin_relationship" placeholder="e.g. Spouse, Child" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+            <input type="tel" class="form-control" name="kin_phone" placeholder="080XXXXXXXX" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Address <span class="text-danger">*</span></label>
+            <textarea class="form-control" name="kin_address" rows="2" placeholder="Next of kin's full address" required></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAVINGS PLAN -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <div class="badge-letter" style="background:linear-gradient(135deg,var(--red),var(--red-dark))">S</div>
+          Choose a Savings Plan
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <p class="savings-period-label"><i class="fa fa-sun me-1"></i> Daily</p>
+            <div class="savings-check">
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Daily ₦200"><label class="form-check-label">₦200 / day</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Daily ₦500"><label class="form-check-label">₦500 / day</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Daily ₦1000"><label class="form-check-label">₦1,000 / day</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Daily ₦2000"><label class="form-check-label">₦2,000 / day</label></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <p class="savings-period-label"><i class="fa fa-calendar-week me-1"></i> Weekly</p>
+            <div class="savings-check">
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Weekly ₦1400"><label class="form-check-label">₦1,400 / week</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Weekly ₦3500"><label class="form-check-label">₦3,500 / week</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Weekly ₦7000"><label class="form-check-label">₦7,000 / week</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Weekly ₦14000"><label class="form-check-label">₦14,000 / week</label></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <p class="savings-period-label"><i class="fa fa-calendar me-1"></i> Monthly</p>
+            <div class="savings-check">
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Monthly ₦10000"><label class="form-check-label">₦10,000 / month</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Monthly ₦20000"><label class="form-check-label">₦20,000 / month</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Monthly ₦30000"><label class="form-check-label">₦30,000 / month</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="savings_plan" value="Monthly ₦50000"><label class="form-check-label">₦50,000 / month</label></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- E: DECLARATION -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <div class="badge-letter">E</div>
+          Declaration
+        </div>
+        <div class="declaration-box mb-4">
+          <p>
+            I hereby declare that the information provided in this form is <strong style="color:white">true and correct</strong>.
+            I agree to abide by the bye-laws and regulations of the Society. I understand that membership is
+            subject to approval by the Management Committee.
+          </p>
+          <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" id="declaration" name="declaration" required>
+            <label class="form-check-label fw-bold" for="declaration" style="color:#6fa3ff">
+              I confirm that all information above is accurate and I agree to the terms and bye-laws of ANCHORMPCS.
+            </label>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-5">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" name="declaration_date" id="declarationDate">
+          </div>
+        </div>
+
+        <div class="notice-box mb-4">
+          <i class="fa fa-circle-info me-2" style="color:var(--blue)"></i>
+          After submitting this form, pay <strong>₦15,000</strong> to <strong>First Bank — 2048556639</strong>
+          (Anchor Multipurpose Cooperative Society) and bring 2 passport photographs to our office at
+          Ubini Industrial Building, KM1 Refinery Road, Effurun, Delta State.
+          Confirm your application by calling <strong>08033114863</strong> or <strong>09029876878</strong>.
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <i class="fa fa-paper-plane me-2"></i> Submit Membership Application
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-bottom">
+      <p>&copy; 2024 Anchor Multipurpose Cooperative Society. All rights reserved.</p>
+      <p>KM1 Refinery Road, Effurun, Delta State &nbsp;&bull;&nbsp; <a href="tel:08033114863" style="color:var(--red)">08033114863</a></p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('declarationDate').valueAsDate = new Date();
+
+  function calcShare() {
+    const n = parseInt(document.getElementById('numShares').value) || 0;
+    document.getElementById('shareAmount').value = n ? '₦' + (n * 25000).toLocaleString() : '';
+  }
+
+  document.getElementById('membershipForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('.btn-submit');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i>Submitting…';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/membership', { method: 'POST', body: new FormData(this) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Submission failed');
+
+      btn.innerHTML = '<i class="fa fa-circle-check me-2"></i>Application Submitted Successfully!';
+      btn.style.background = 'linear-gradient(135deg, #198754, #146c43)';
+      btn.style.boxShadow = '0 8px 28px rgba(25,135,84,.4)';
+
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;font-weight:600;font-size:1rem;text-align:center';
+      banner.innerHTML = `<i class="fa fa-circle-check me-2"></i>${data.message}<br><small style="font-weight:400;margin-top:.3rem;display:block">Application ID: <strong>#${data.application_id}</strong></small>`;
+      this.parentNode.insertBefore(banner, this);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+      const errBox = document.createElement('div');
+      errBox.style.cssText = 'background:#fee2e2;color:#7f1d1d;border:1px solid #fca5a5;border-radius:8px;padding:1rem 1.25rem;margin-bottom:1rem;font-weight:600';
+      errBox.innerHTML = `<i class="fa fa-exclamation-circle me-2"></i>${err.message}`;
+      btn.parentNode.insertBefore(errBox, btn);
+      setTimeout(() => errBox.remove(), 6000);
+    }
+  });
+</script>
+</body>
+</html>
