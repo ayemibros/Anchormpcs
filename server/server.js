@@ -11,8 +11,13 @@ const protect          = require('./middleware/auth');
 const app  = express();
 const PORT = process.env.PORT || 5000;
 
-// Root of the project (one level up from /server, or override via env)
-const ROOT = process.env.STATIC_PATH || path.join(__dirname, '..');
+// Root of the project:
+// 1. STATIC_PATH env var (set this in hosting control panel if needed)
+// 2. process.cwd() if index.html is found there (IIS sets CWD to app root)
+// 3. Fall back to one level up from /server
+const fs = require('fs');
+const ROOT = process.env.STATIC_PATH ||
+  (fs.existsSync(path.join(process.cwd(), 'index.html')) ? process.cwd() : path.join(__dirname, '..'));
 
 app.use(cors());
 app.use(express.json());
